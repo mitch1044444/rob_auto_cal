@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rob-auto-cal)
+project(rob_auto_cal)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -188,3 +188,11 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+
+## Added by André
+add_executable(chess_correspond src/nodes/chess_correspond.cpp)
+target_link_libraries(chess_correspond ${catkin_LIBRARIES})
+add_dependencies(chess_correspond rob_auto_cal_chess_correspond_cpp)
+
+
