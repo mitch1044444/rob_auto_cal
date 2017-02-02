@@ -5,7 +5,17 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <stdio.h>
+
+
+
+/*
+ * Takes images in image_raw and finds the chessboard coners of a 9x6 opencv chessboard of 25mm square size
+ * It outputs the translation and vectors to image points in tf2 
+ */
 
 static const std::string OPENCV_WINDOW = "Image window";
 
@@ -13,17 +23,19 @@ using namespace cv;
 using namespace std;
 
 
+
 class ImageConverter
 {
-  ros::NodeHandle nh_;
-  image_transport::ImageTransport it_;
-  image_transport::Subscriber image_sub_;
-  image_transport::Publisher image_pub_;
-  
+	ros::NodeHandle nh_;
+	image_transport::ImageTransport it_;
+	image_transport::Subscriber image_sub_;
+	image_transport::Publisher image_pub_;
+	static tf2_ros::TransformBroadcaster tf_br_;
+	  
 public:
-  ImageConverter()
-    : it_(nh_)
-  {
+  	ImageConverter()
+    	: it_(nh_)
+  	{
     // Subscrive to input video feed and publish output video feed
     image_sub_ = it_.subscribe("/camera/image_raw", 1, 
       &ImageConverter::imageCb, this);
@@ -49,15 +61,8 @@ public:
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return;
     }
-
-    // Draw an example circle on the video stream
-    //if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
-    // cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
-
     
-    
-    
-    
+     
     Mat gray_image;
     cvtColor( cv_ptr->image, gray_image, COLOR_BGR2GRAY );
     
@@ -73,18 +78,12 @@ public:
         {
             Point3d temp(0.025*j,0.025*i,0.0);
             obj3d.push_back(temp);
-            //obj3d[i+j].x = 0.025*j;
-            //obj3d[i+j].y = 0.025*i;
-            //obj3d[i+j].z = 0;
         }
     }
 
-    //cout << obj3d << endl;
-
     bool patternfound = findChessboardCorners(gray_image, patternsize, corners,
-          CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS);
+          CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS | CALIB_CB_FAST_CHECK);
 
-    //cout << patternfound << endl;
 
     if(patternfound)
     {
@@ -94,8 +93,8 @@ public:
 
 
       double camMatArray[9] = {688.302912, 0.000000, 319.798533,
-                            0.000000, 690.195379, 246.386891,
-                            0.000000, 0.000000, 1.000000}; // Obtained for camera calibration
+			       			   0.000000, 690.195379, 246.386891,
+                               0.000000, 0.000000, 1.000000}; // Obtained for camera calibration
 
       double distMatArray[5] = {-0.180610, 0.130998, 0.000918, 0.002666, 0.000000};
 
@@ -121,10 +120,33 @@ public:
       Rodrigues(rvec,R);
 
       cout << "Rotation Matrix:" << endl << R << endl << "Translation Vector:" << endl << tvec << endl;	    
-	  
+	
+      // Output HTM to tf
+      geometry_msgs::TransformStamped transformStamped;
+      transformStamped.header.stamp = ros::Time::now();
+      transformStamped.header.frame_id = "camera";
+      transformStamped.child_frame_id = "world";
+      transformStamped.transform.translation.x = tvec.at<double>(0,0,0);
+      transformStamped.transform.translation.y = tvec[1];
+      transformStamped.transform.translation.z = tvec[2];
+      tf2::Quaternion q;
+      
+      tf2::tf2Scaler theta = (double)(sqrt(rvec[0]*rvec[0] + rvec[1]*rvec[1] + rvec[2]*rvec[2]));
+      tf2::Vector3 axis = tf2::Vector3(tvec[0], tvec[1], tvec[2]);
+      q.setRotation(axis,theta);
+      
+      transformStamped.transform.rotation.x = q.x();
+      transformStamped.transform.rotation.y = q.y();
+      transformStamped.transform.rotation.z = q.z();
+      transformStamped.transform.rotation.w = q.w();
+      
+      
+      tf_br_.sendTransform(transformStamped);
+
+      
     }
-	    
-    
+
+
     // Update GUI Window
     cv::imshow(OPENCV_WINDOW, cv_ptr->image);
     cv::waitKey(3);
