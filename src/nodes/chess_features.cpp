@@ -152,7 +152,6 @@ public:
 			{
 				double imPoint2d[3] = {cornersd[i].x, cornersd[i].y, 1.0};
 				Mat hom_pt = Mat(3, 1, CV_64F, &imPoint2d);
-				cout << hom_pt << endl;
 
 				hom_pt = invcameraMatrix*hom_pt; //put in world coordinates by removing distortion
 				
@@ -181,7 +180,7 @@ public:
 int main(int argc, char** argv)
 {
 	cout << "Initiated" << endl;
-	ros::init(argc, argv, "findChessboardTrans");
+	ros::init(argc, argv, "chess_features");
 	findChessboardTrans fct;
 	ros::spin();
 	return 0;

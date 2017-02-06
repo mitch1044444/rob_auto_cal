@@ -196,10 +196,16 @@ include_directories(
 
 add_executable(chess_features src/nodes/chess_features.cpp)
 target_link_libraries(chess_features ${catkin_LIBRARIES})
-add_dependencies(chess_features rob_auto_cal_chess_correspond_cpp)
+add_dependencies(chess_features rob_auto_cal_chess_features_cpp)
 add_dependencies(chess_features ${catkin_EXPORTED_TARGETS})
 
-#add_dependencies(chess_correspond ${catkin_EXPORTED_TARGETS}) is needed because 
+add_executable(save_data_node src/nodes/save_data_node.cpp)
+target_link_libraries(save_data_node ${catkin_LIBRARIES})
+add_dependencies(save_data_node rob_auto_cal_save_data_node_cpp)
+add_dependencies(save_data_node ${catkin_EXPORTED_TARGETS})
+
+
+#add_dependencies(package_name ${catkin_EXPORTED_TARGETS}) is needed because 
 #a custom ros message that is a part of its own ros package as it is used. This is not considered good
 #pratice but this is the only custom message in this package and creating a new separate package just 
 #for the message would further complicate the program for low reusability.
