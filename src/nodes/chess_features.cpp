@@ -40,7 +40,9 @@ public:
   	findChessboardTrans()
     	: it_(nh_)
   	{
+
 		// Subscribe to input video feed 
+
 		image_sub_ = it_.subscribe("/camera/image_raw", 1, 
 								   &findChessboardTrans::imageCb, this);
 		cv::namedWindow(OPENCV_WINDOW);
