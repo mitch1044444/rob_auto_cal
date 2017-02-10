@@ -26,6 +26,15 @@ int h = 9; 					// Chessboard inner corner dimensions width and height
 int w = 6;					
 double square_size = 0.025;	// Chessboard printed square size in meters
 
+void draw_coordinate_system(Mat img, vector<Point2f>& corners, vector<Point2f>& imgpts)
+{
+
+	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[0].x,(int)imgpts[0].y), Scalar(255,0,0), 7);
+	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[1].x,(int)imgpts[1].y), Scalar(0,255,0), 7);
+	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[2].x,(int)imgpts[2].y), Scalar(0,0,255), 7);
+}
+
+
 
 class findChessboardTrans
 {
@@ -78,14 +87,18 @@ public:
 	    Size patternsize(h,w);
 	    vector<Point2f> corners;
 	    bool patternfound = findChessboardCorners(gray_image, patternsize, corners,
-	          CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS | CALIB_CB_FAST_CHECK);
+	          CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FILTER_QUADS);
 
 	    if(patternfound)
 	    {
 	    	// Draw tracking points of chessboard
+
 		    cornerSubPix(gray_image, corners, Size(11, 11), Size(-1, -1),TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
-		    drawChessboardCorners(cv_ptr->image, patternsize, Mat(corners), patternfound);
+		    //drawChessboardCorners(cv_ptr->image, patternsize, Mat(corners), patternfound);
+
 		    
+
+
 
 		    double camMatArray[9] = {688.302912, 0.000000, 319.798533,
 					       			0.000000, 690.195379, 246.386891,
@@ -115,6 +128,17 @@ public:
 
 			solvePnP(obj3d,cornersd,cameraMatrix,distCoeffs,rvec,tvec);
 
+			vector<Point3f> axis3d;
+	    	vector<Point2f> imgpnts;
+		    axis3d.push_back(Point3f(0.06,0,0)); // x
+		   	axis3d.push_back(Point3f(0,0.06,0)); // y
+		   	axis3d.push_back(Point3f(0,0,-0.06));// z
+
+			projectPoints(axis3d, rvec, tvec, cameraMatrix, distCoeffs, imgpnts);
+
+			draw_coordinate_system(cv_ptr->image, corners, imgpnts);
+
+
 			Mat R = Mat::zeros(3,3,CV_64F);
 
 			Rodrigues(rvec,R);
@@ -124,8 +148,8 @@ public:
 			// broadcase translation to tf2 
 			geometry_msgs::TransformStamped transformStamped;
 			transformStamped.header.stamp = ros::Time::now();
-			transformStamped.header.frame_id = "camera";
-			transformStamped.child_frame_id = "chessboard";
+			transformStamped.header.frame_id = "chessboard";
+			transformStamped.child_frame_id = "camera";
 			transformStamped.transform.translation.x = tvec.at<double>(0);
 			transformStamped.transform.translation.y = tvec.at<double>(1);
 			transformStamped.transform.translation.z = tvec.at<double>(2);

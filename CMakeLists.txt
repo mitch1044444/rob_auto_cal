@@ -199,10 +199,20 @@ target_link_libraries(chess_features ${catkin_LIBRARIES})
 add_dependencies(chess_features rob_auto_cal_chess_features_cpp)
 add_dependencies(chess_features ${catkin_EXPORTED_TARGETS})
 
-add_executable(save_data_node src/nodes/save_data_node.cpp)
-target_link_libraries(save_data_node ${catkin_LIBRARIES})
-add_dependencies(save_data_node rob_auto_cal_save_data_node_cpp)
-add_dependencies(save_data_node ${catkin_EXPORTED_TARGETS})
+add_executable(save_vects_node src/nodes/save_vects_node.cpp)
+target_link_libraries(save_vects_node ${catkin_LIBRARIES})
+add_dependencies(save_vects_node rob_auto_cal_vects_vects_node_cpp)
+add_dependencies(save_vects_node ${catkin_EXPORTED_TARGETS})
+
+add_executable(save_trans_node src/nodes/save_trans_node.cpp)
+target_link_libraries(save_trans_node ${catkin_LIBRARIES})
+add_dependencies(save_trans_node rob_auto_cal_save_trans_node_cpp)
+
+
+add_executable(image_publisher src/nodes/image_publisher.cpp)
+target_link_libraries(image_publisher ${catkin_LIBRARIES})
+add_dependencies(image_publisher rob_auto_cal_save_data_node_cpp)
+
 
 
 #add_dependencies(package_name ${catkin_EXPORTED_TARGETS}) is needed because 
