@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!--
+  Logs data from joints and transformation to the world coordinate frame from the camera
+-->
+<launch>
+	<node name="save_joints_node" pkg="rob_auto_cal" type="save_joints_node" output="screen" args="/misc/shome/ex09/Thesis/mpherwc/data/JointsData"/>
+ 	
+ 	
+    <node name="save_trans_node" pkg="rob_auto_cal" type="save_trans_node" output="screen" args="/misc/shome/ex09/Thesis/mpherwc/data/TransformationData"/>
+
+</launch>

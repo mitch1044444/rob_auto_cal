@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "save_trans_node");
 	ros::NodeHandle nh_;
-	ros::param::set("parth_param",(std::string)argv[1]);
+	ros::param::set("parth_param_trans",(std::string)argv[1]);
 	tf2_ros::Buffer tfBuffer;
 	tf2_ros::TransformListener tfListener(tfBuffer);
 	geometry_msgs::TransformStamped transformStamped;
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 			catch (tf2::TransformException &ex) 
 		{
 		
-		ROS_WARN("%s",ex.what());
+		//ROS_WARN("%s",ex.what());
 		continue;
 		}
 	}
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
 	ofstream myfile;
     string path;
-	ros::param::get("parth_param",path);
+	ros::param::get("parth_param_trans",path);
 
 	if(path.empty())
 	{
@@ -48,8 +48,6 @@ int main(int argc, char **argv)
 		cout << "File saved with HTM in " << path.c_str() << endl;
 	}
 
-
-	myfile << ros::Time::now() << "\n";
 	tf2::Matrix3x3 R = tf2::Matrix3x3(tf2::Quaternion(transformStamped.transform.rotation.x,
 													transformStamped.transform.rotation.y,
 													transformStamped.transform.rotation.z,
@@ -62,9 +60,9 @@ int main(int argc, char **argv)
 
 	myfile << transformStamped.transform.translation.x << " " 
 		<< transformStamped.transform.translation.y << " " 
-		<< transformStamped.transform.translation.z << "\n";
+		<< transformStamped.transform.translation.z;
 
-	myfile << "---" << "\n";
+	myfile << "\n";
 	myfile.close();
 	
 	ros::shutdown();

@@ -213,6 +213,11 @@ add_executable(image_publisher src/nodes/image_publisher.cpp)
 target_link_libraries(image_publisher ${catkin_LIBRARIES})
 add_dependencies(image_publisher rob_auto_cal_save_data_node_cpp)
 
+add_executable(save_joints_node src/nodes/save_joints_node.cpp)
+target_link_libraries(save_joints_node ${catkin_LIBRARIES})
+add_dependencies(save_joints_node rob_auto_cal_save_joints_node_cpp)
+
+
 
 
 #add_dependencies(package_name ${catkin_EXPORTED_TARGETS}) is needed because 

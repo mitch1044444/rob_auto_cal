@@ -29,9 +29,9 @@ double square_size = 0.025;	// Chessboard printed square size in meters
 void draw_coordinate_system(Mat img, vector<Point2f>& corners, vector<Point2f>& imgpts)
 {
 
-	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[0].x,(int)imgpts[0].y), Scalar(255,0,0), 7);
-	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[1].x,(int)imgpts[1].y), Scalar(0,255,0), 7);
-	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[2].x,(int)imgpts[2].y), Scalar(0,0,255), 7);
+	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[0].x,(int)imgpts[0].y), Scalar(0,0,255), 6);
+	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[1].x,(int)imgpts[1].y), Scalar(0,255,0), 6);
+	line(img, Point((int)corners[0].x,(int)corners[0].y), Point((int)imgpts[2].x,(int)imgpts[2].y), Scalar(255,0,0), 6);
 }
 
 
@@ -111,7 +111,7 @@ public:
 		    {
 		        for (int j = 0; j < patternsize.width; j++)
 		        {
-		            obj3d.push_back(Point3d(square_size*j,square_size*i,0.0));
+		            obj3d.push_back(Point3d(square_size*i,square_size*j,0.0));
 		        }
 		    }
 
@@ -132,7 +132,7 @@ public:
 	    	vector<Point2f> imgpnts;
 		    axis3d.push_back(Point3f(0.06,0,0)); // x
 		   	axis3d.push_back(Point3f(0,0.06,0)); // y
-		   	axis3d.push_back(Point3f(0,0,-0.06));// z
+		   	axis3d.push_back(Point3f(0,0,0.06));// z
 
 			projectPoints(axis3d, rvec, tvec, cameraMatrix, distCoeffs, imgpnts);
 
