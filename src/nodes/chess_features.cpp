@@ -111,7 +111,7 @@ public:
 		    {
 		        for (int j = 0; j < patternsize.width; j++)
 		        {
-		            obj3d.push_back(Point3d(square_size*i,square_size*j,0.0));
+		            obj3d.push_back(Point3d(square_size*j,square_size*i,0.0));
 		        }
 		    }
 
@@ -132,7 +132,7 @@ public:
 	    	vector<Point2f> imgpnts;
 		    axis3d.push_back(Point3f(0.06,0,0)); // x
 		   	axis3d.push_back(Point3f(0,0.06,0)); // y
-		   	axis3d.push_back(Point3f(0,0,0.06));// z
+		   	axis3d.push_back(Point3f(0,0,-0.06));// z
 
 			projectPoints(axis3d, rvec, tvec, cameraMatrix, distCoeffs, imgpnts);
 
