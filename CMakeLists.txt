@@ -15,9 +15,80 @@ find_package(catkin REQUIRED COMPONENTS
   tf2 
   tf2_ros
 )
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
+
+
+
+
+## Third party libraries includes
+
+
+
+find_library(SDPA 
+ NAMES libsdpa sdpa
+ PATHS ${CMAKE_CURRENT_LIST_DIR}/sdpa/lib
+)
+
+find_library(MUMPS
+ NAMES libdmumps_seq dmumps_seq
+ PATHS ${CMAKE_CURRENT_LIST_DIR}/sdpa/share/
+)
+
+
+find_library(BLAS
+ NAMES libblas3 blas
+ PATHS ${CMAKE_CURRENT_LIST_DIR}/sdpa/share/sdpa/blas
+)
+
+find_library(PTHREAD
+ NAMES libpthread pthread
+ PATHS ${CMAKE_CURRENT_LIST_DIR}
+)
+
+find_library(LAPACK
+ NAMES liblapack lapack
+ PATHS ${CMAKE_CURRENT_LIST_DIR}
+)
+
+
+
+
+if(SDPA)
+ message("SDPA found")
+else(SDPA)
+ message("SDPA not found")
+endif(SDPA)
+
+if(MUMPS)
+ message(${MUMPS})
+ message("MUMPS found")
+else(MUMPS)
+ message("MUMPS not found")
+endif(MUMPS)
+
+if(BLAS)
+ message("BLAS found")
+else(BLAS)
+ message("BLAS not found")
+endif(BLAS)
+
+
+if(PTHREAD)
+ message("PTHREAD found")
+else(PTHREAD)
+ message("PTHREAD not found")
+endif(PTHREAD)
+
+
+if(LAPACK)
+ message("LAPACK found")
+else(LAPACK)
+ message("LAPACK not found")
+endif(LAPACK)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -109,18 +180,22 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rob-auto-cal
   CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs message_runtime 
-  DEPENDS system_lib
+  DEPENDS system_lib Eigen sdpa  dmumps_seq lapack blas pthread
 )
 
 ###########
 ## Build ##
 ###########
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include -L/usr/lib -lsdpa -ldmumps_seq -llapack -lblas -lpthread")
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
+include_directories( include
   ${catkin_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
+  ${rob_auto_cal_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -167,11 +242,11 @@ include_directories(
 # )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+ install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.h"
+   PATTERN ".svn" EXCLUDE
+ )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
@@ -218,6 +293,17 @@ target_link_libraries(save_joints_node ${catkin_LIBRARIES})
 add_dependencies(save_joints_node rob_auto_cal_save_joints_node_cpp)
 
 
+
+add_executable(trans_calc src/nodes/trans_calc/herwc_solver.cpp src/nodes/trans_calc/herwc_problem3.cpp)
+target_link_libraries(trans_calc 
+${catkin_LIBRARIES} 
+${Eigen_LIBRARIES}
+${SDPA}
+${MUMPS}
+${BLAS}
+${PTHREAD}
+${LAPACK})
+add_dependencies(trans_calc rob_auto_cal_trans_calc_cpp)
 
 
 #add_dependencies(package_name ${catkin_EXPORTED_TARGETS}) is needed because 
