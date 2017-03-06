@@ -127,11 +127,11 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   reqChessTransform.srv
+   reqTransCalc.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -178,9 +178,9 @@ add_message_files(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rob-auto-cal
+  LIBRARIES trans_calc
   CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs message_runtime 
-  DEPENDS system_lib Eigen sdpa  dmumps_seq lapack blas pthread
+  DEPENDS system_lib Eigen sdpa dmumps_seq lapack blas pthread
 )
 
 ###########
@@ -304,7 +304,8 @@ ${BLAS}
 ${PTHREAD}
 ${LAPACK})
 add_dependencies(trans_calc rob_auto_cal_trans_calc_cpp)
-
+add_dependencies(trans_calc ${catkin_EXPORTED_TARGETS})
+#add_dependencies(trans_calc rob_auto_cal_generate_messages_cpp)
 
 #add_dependencies(package_name ${catkin_EXPORTED_TARGETS}) is needed because 
 #a custom ros message that is a part of its own ros package as it is used. This is not considered good

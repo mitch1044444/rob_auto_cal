@@ -9,10 +9,14 @@
 
 #define SDPA_SOLVER
 
-#include <rob-auto-cal/gposolver_sdpa.h>
+#include <trans_calc/gposolver_sdpa.h>
+#include <rob_auto_cal/reqTransCalc.h>
+
 
 #include "herwc_problem3.h"
-
+#include <geometry_msgs/TransformStamped.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 using namespace std;
 using namespace Eigen;
@@ -27,28 +31,33 @@ R << q(0)*q(0) + q(1)*q(1) - q(2)*q(2) - q(3)*q(3),                     2*q(1)*q
                          2*q(1)*q(3) - 2*q(0)*q(2),                     2*q(2)*q(3) + 2*q(0)*q(1), q(0)*q(0) - q(1)*q(1) - q(2)*q(2) + q(3)*q(3);
 }
 
-int main(int argc, char** argv) {
-GpoSolverSdpa<HerwcProblem> gposolver;
-
-cout << "transformation calculation started!" << endl;
-
-ros::init(argc, argv, "trans_calc");
-
-  try
+bool serviceCb(rob_auto_cal::reqTransCalc::Request &req, rob_auto_cal::reqTransCalc::Response &res)
+{
+  GpoSolverSdpa<HerwcProblem> gposolver;
+    try
     {
       GpoSolverStatus status;
       GpoSolverSolutions sols;
       MatrixXd rvals;
       VectorXd pvals;
 
-      if (argc != 2)
-        {
-          cout << "Usage: herwc_solver hewrc_data.txt" << endl;
-          return 0;
-        }
+
 
       // Load problem data using GpoSolver utility function 
-      gposolver.readProblemDataTxt(argv[1], rvals, pvals);
+      //gposolver.readProblemDataTxt(argv[1], rvals, pvals);
+
+      pvals.resize(2);
+
+
+      for (int i = 0; i < req.Avec.size(); ++i)
+      {
+        for (int i = 0; i < count; ++i)
+        {
+          /* code */
+        }
+      }
+
+
 
       // Scale translations
       double max_norm = 1;
@@ -111,7 +120,7 @@ ros::init(argc, argv, "trans_calc");
               X.setIdentity();
               X.block(0, 0, 3, 3) = Rx;
               X.block(0, 3, 3, 1) = tx;
-		
+    
               q2rot(qz, Rz);
               tz = tz * max_norm;
               Z.setIdentity();
@@ -132,9 +141,20 @@ ros::init(argc, argv, "trans_calc");
   catch (exception& e)
     {
       cerr << "Solver exception: " << e.what() << endl;
-      return 1;
     }
-  ros::shutdown();
-  return 0;
+
+}
+
+
+int main(int argc, char** argv) {
+cout << "Ready to do transformation calculation" << endl;
+
+ros::init(argc, argv, "trans_calc");
+ros::NodeHandle nh_;
+ros::ServiceServer service_;
+service_ = nh_.advertiseService("reqTransCalc", serviceCb);
+
+
+ros::spin();
 
 }

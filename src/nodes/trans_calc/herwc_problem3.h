@@ -11,7 +11,7 @@
 #ifndef HERWC_PROBLEM3_H
 #define HERWC_PROBLEM3_H
 
-#include <rob-auto-cal/gpoproblem.h>
+#include <trans_calc/gpoproblem.h>
 
 namespace GpoSolver {
 

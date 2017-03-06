@@ -1,0 +1,10 @@
+<launch>
+  <node pkg="camera1394" name="camera" type="camera1394_node">
+      <param name="guid" value="000a47010f08130b"/>
+      <param name="video_mode" value="640x480_mono8"/>
+      <param name="iso_speed" value="400"/>
+      <param name="shutter" value="400"/>
+  </node> 
+
+</launch>
+ 

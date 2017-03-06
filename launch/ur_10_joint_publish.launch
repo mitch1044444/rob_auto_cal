@@ -1,0 +1,23 @@
+<launch>
+  
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="base_frame_id"   default="base_link"/>
+  <arg name="global_frame_id" default="world"/>
+  
+    <!-- By default, we are not in debug mode -->
+  <arg name="debug" default="false" />
+
+  <arg name="gui" default="true" />
+  <param name="use_gui" value="$(arg gui)"/>
+  
+  <!-- Load robot model -->
+  <include file="$(find ur_modern_driver)/launch/ur10_bringup.launch">
+  <arg name="robot_ip" default="192.38.66.226" />
+  <arg name="limited" default="false" />
+  </include> 
+
+ <!-- <include file="$(find my_ur10_limited)/launch/move_group.launch"/>
+
+   Run Rviz and load the default config to see the state of the move_group node 
+  <node name="rviz" pkg="rviz" type="rviz" />-->
+</launch>
