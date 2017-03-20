@@ -13,6 +13,7 @@
 #include <rob_auto_cal/reqChessTransform.h>
 
 
+
 /*
  * Takes images in image_raw and finds the chessboard coners of a 9x6 opencv chessboard of 25mm square size
  * It outputs the translation and vectors to image points in tf2 
@@ -25,7 +26,7 @@ using namespace std;
 
 int h = 9; 					// Chessboard inner corner dimensions width and height
 int w = 6;					
-double square_size = 0.025; //0.0145;	// Chessboard printed square size in meters
+//double square_size = 0.0145; //0.0145;	// Chessboard printed square size in meters
 
 void draw_coordinate_system(Mat img, vector<Point2f>& corners, vector<Point2f>& imgpts)
 {
@@ -44,7 +45,7 @@ class findChessboardTrans
 	image_transport::ImageTransport it_;
 	image_transport::CameraSubscriber camera_sub_;
 	ros::ServiceServer service_;
-	//tf2_ros::TransformBroadcaster tf_br_;
+	tf2_ros::TransformBroadcaster tf_br_;
 	//ros::Publisher vp_ ;
 
 	  
@@ -57,6 +58,7 @@ public:
 
 		camera_sub_ = it_.subscribeCamera("/camera/image_raw", 1, &findChessboardTrans::imageCb, this);
 		cv::namedWindow(OPENCV_WINDOW);
+
 		//vp_ = nh_.advertise<rob_auto_cal::vectorVector3>("/feature_vectors", 1000);
 		service_ = nh_.advertiseService("reqChessTransform", &findChessboardTrans::serviceCb, this);
 		
@@ -135,9 +137,9 @@ public:
 		    //                        0.000000, 0.000000, 1.000000}; // Obtained for camera calibration (microsoft 1080p usb webcam)
 		    //double distMatArray[5] = {0.093800, -0.039139, 0.011473, -0.031648, 0.000000};
 			
-		    
-
-
+		    string square_size_string = "0.0145";
+		   	ros::param::get("chess_square_size", square_size_string);
+		   	double square_size = atof(square_size_string.c_str());
 
 			// Create 3d point model for chessboard
 			vector<Point3d> obj3d;
@@ -145,7 +147,7 @@ public:
 		    {
 		        for (int j = 0; j < patternsize.width; j++)
 		        {
-		            obj3d.push_back(Point3d(square_size*i,square_size*j,0.0));
+		            obj3d.push_back(Point3d(square_size*j,square_size*i,0.0));
 		        }
 		    }
 
@@ -166,7 +168,7 @@ public:
 	    	vector<Point2f> imgpnts;
 		    axis3d.push_back(Point3f(0.06,0,0)); // x
 		   	axis3d.push_back(Point3f(0,0.06,0)); // y
-		   	axis3d.push_back(Point3f(0,0, 0.06));// z
+		   	axis3d.push_back(Point3f(0,0, -0.06));// z
 
 			projectPoints(axis3d, rvec, tvec, cameraMatrix, distCoeffs, imgpnts);
 
@@ -177,7 +179,7 @@ public:
 
 			Rodrigues(rvec,R);
 
-			cout << "Rotation Matrix:" << endl << R << endl << "Translation Vector:" << endl << tvec << endl;	    
+			//cout << "Rotation Matrix:" << endl << R << endl << "Translation Vector:" << endl << tvec << endl;	    
 
 			// broadcase translation to tf2 
 			//geometry_msgs::TransformStamped transformStamped;
@@ -197,8 +199,8 @@ public:
 			transformStamped_.transform.rotation.y = q.y();
 			transformStamped_.transform.rotation.z = q.z();
 			transformStamped_.transform.rotation.w = q.w();
-
-			//tf_br_.sendTransform(transformStamped);
+			
+			tf_br_.sendTransform(transformStamped_);
 
 
 			// Publish image features in the from of vectors.
@@ -232,6 +234,9 @@ public:
 	    }
 
 	    // Update GUI Window
+	    float aspect = ((float)(cv_ptr->image.rows))/((float)(cv_ptr->image.cols));
+	    Size newsize(1000,1000*aspect);
+	    resize(cv_ptr->image,cv_ptr->image, newsize);
 	    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
 	    cv::waitKey(3);
 	}
@@ -241,7 +246,18 @@ int main(int argc, char** argv)
 {
 	cout << "Initiated" << endl;
 	ros::init(argc, argv, "chess_features");
+	if(argc!=2)
+	{
+		cout << "\033[1;31mWarning! Input argument needed for chessboard square size! default of 0.025 set!\033[0m" << endl;
+		ros::param::set("chess_square_size","0.025");
+	}	
+	else
+	{
+		ros::param::set("chess_square_size",(std::string)argv[1]);
+	}
+	
 	findChessboardTrans fct;
+	
 
 
 	ros::spin();

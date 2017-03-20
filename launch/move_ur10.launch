@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+<!--  <node name="camera1394" pkg="camera1394" type="camera1394_node" output="screen">  -->
+<!--   <param name="exposure" value="1200" /> -->
+<!--   <param name="shutter" value="1200" /> -->
+<!--  </node>  -->
+
+<!--  <node name="imgpro" pkg="imgpro" type="detect_object" output="screen"/>  -->
+  
+  <include file="$(find ur_modern_driver)/launch/ur10_bringup.launch">
+    <arg name="robot_ip" value="192.38.66.226" />    	    
+  </include>
+
+   
+<!--  <node name="gripper_TCP_control" pkg="robotiq_c_model_control" type="CModelTcpNode" args="192.38.66.228" />      -->
+
+   <node name="move_ur10" pkg="rob_auto_cal" type="move_ur10" output="screen" />
+   
+<!--     <node name="ur10" pkg="move_ur10" type="ur_pickupplace_05Mar.py" output="screen"/>  -->
+</launch>

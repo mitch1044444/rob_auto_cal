@@ -50,6 +50,7 @@
   <build_depend>message_generation</build_depend>
   <build_depend>cmake_modules</build_depend>
   <build_depend>libsdpa-dev</build_depend>
+  <build_depend>ncurses++</build_depend>
 
   
   
@@ -64,7 +65,7 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>cmake_modules</run_depend>
   <run_depend>libsdpa-dev</run_depend>
-
+  <run_depend>ncurses++</run_depend>
 
   
 

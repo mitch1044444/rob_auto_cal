@@ -1,0 +1,7 @@
+<launch>
+	<include file="$(find rob_auto_cal)/launch/usb_cam-test.launch" />
+	<node pkg="rob_auto_cal" name="chess_features" type="chess_features" output="screen" args="0.0255"/>	
+	<include file="$(find for_andre)/launch/ur10world.launch" />
+	<node pkg="rob_auto_cal" name="trans_calc" type="trans_calc" output="screen"/>
+</launch>
+ 

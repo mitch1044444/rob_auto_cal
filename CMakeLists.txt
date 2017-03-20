@@ -18,6 +18,10 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
 
+#ncurses
+find_package(PkgConfig REQUIRED)
+pkg_check_modules ( ncurses++ REQUIRED ncurses++)
+
 
 
 
@@ -289,9 +293,13 @@ target_link_libraries(image_publisher ${catkin_LIBRARIES})
 add_dependencies(image_publisher rob_auto_cal_save_data_node_cpp)
 
 add_executable(save_joints_node src/nodes/save_joints_node.cpp)
-target_link_libraries(save_joints_node ${catkin_LIBRARIES})
+target_link_libraries(save_joints_node ${catkin_LIBRARIES} ncurses)
 add_dependencies(save_joints_node rob_auto_cal_save_joints_node_cpp)
 
+
+add_executable(move_ur10 src/nodes/move_ur10.cpp)
+target_link_libraries(move_ur10 ${catkin_LIBRARIES})
+add_dependencies(move_ur10 rob_auto_cal_move_ur10_cpp)
 
 
 add_executable(trans_calc src/nodes/trans_calc/herwc_solver.cpp src/nodes/trans_calc/herwc_problem3.cpp)
