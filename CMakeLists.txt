@@ -17,12 +17,13 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
+find_package(ur_modern_driver REQUIRED)
 
 #ncurses
 find_package(PkgConfig REQUIRED)
 pkg_check_modules ( ncurses++ REQUIRED ncurses++)
 
-
+find_package(OpenCV 3 REQUIRED)
 
 
 ## Third party libraries includes
@@ -301,6 +302,11 @@ add_executable(move_ur10 src/nodes/move_ur10.cpp)
 target_link_libraries(move_ur10 ${catkin_LIBRARIES})
 add_dependencies(move_ur10 rob_auto_cal_move_ur10_cpp)
 
+add_executable(chessboard_move_ur10 src/nodes/chessboard_move_ur10.cpp)
+target_link_libraries(chessboard_move_ur10 ${catkin_LIBRARIES})
+add_dependencies(chessboard_move_ur10 rob_auto_cal_chessboard_move_ur10_cpp)
+
+
 
 add_executable(trans_calc src/nodes/trans_calc/herwc_solver.cpp src/nodes/trans_calc/herwc_problem3.cpp)
 target_link_libraries(trans_calc 
@@ -314,6 +320,8 @@ ${LAPACK})
 add_dependencies(trans_calc rob_auto_cal_trans_calc_cpp)
 add_dependencies(trans_calc ${catkin_EXPORTED_TARGETS})
 #add_dependencies(trans_calc rob_auto_cal_generate_messages_cpp)
+
+
 
 #add_dependencies(package_name ${catkin_EXPORTED_TARGETS}) is needed because 
 #a custom ros message that is a part of its own ros package as it is used. This is not considered good

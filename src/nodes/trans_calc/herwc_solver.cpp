@@ -33,8 +33,7 @@ R << q(0)*q(0) + q(1)*q(1) - q(2)*q(2) - q(3)*q(3),                     2*q(1)*q
 
 bool serviceCb(rob_auto_cal::reqTransCalc::Request &req, rob_auto_cal::reqTransCalc::Response &res)
 {
-    ROS_INFO("Transformation calcualtion started, this may take several minuts.");
-    ROS_INFO("When calcualtion has completed or failed a message will be printed.");
+
   GpoSolverSdpa<HerwcProblem> gposolver;
     try
     {
@@ -182,18 +181,18 @@ bool serviceCb(rob_auto_cal::reqTransCalc::Request &req, rob_auto_cal::reqTransC
                cout << "qz(" <<   c << ") = " << qz.transpose() << endl;
                cout << "tz(" <<   c << ") = " << tz.transpose() << endl;
                cout << "Z("  <<   c << ") = " << endl << Z << endl;
-              res.X.transform.rotation.x = qx(0);
-              res.X.transform.rotation.y = qx(1);
-              res.X.transform.rotation.z = qx(2);
-              res.X.transform.rotation.w = qx(3);
+              res.X.transform.rotation.x = qx(1);
+              res.X.transform.rotation.y = qx(2);
+              res.X.transform.rotation.z = qx(3);
+              res.X.transform.rotation.w = qx(0);
               res.X.transform.translation.x = tx(0);
               res.X.transform.translation.y = tx(1);
               res.X.transform.translation.z = tx(2);
 
-              res.Z.transform.rotation.x = qz(0);
-              res.Z.transform.rotation.y = qz(1);
-              res.Z.transform.rotation.z = qz(2);
-              res.Z.transform.rotation.w = qz(3);
+              res.Z.transform.rotation.x = qz(1);
+              res.Z.transform.rotation.y = qz(2);
+              res.Z.transform.rotation.z = qz(3);
+              res.Z.transform.rotation.w = qz(0);
               res.Z.transform.translation.x = tz(0);
               res.Z.transform.translation.y = tz(1);
               res.Z.transform.translation.z = tz(2);

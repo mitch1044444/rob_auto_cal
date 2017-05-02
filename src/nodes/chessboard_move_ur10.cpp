@@ -191,49 +191,85 @@ int main(int argc, char* argv[])
 {
   
 
-  ros::init(argc, argv, "move_ur10");
+  ros::init(argc, argv, "chessboard_move_ur10");
   ros::NodeHandle n;
   ros::Subscriber sub1 = n.subscribe("joint_states", 6, JointMonitorCb);
   ros::Subscriber sub2 = n.subscribe("tool_velocity", 6, TrajectoryMonitorCb);
-
+  ros::Time::init();
   ros::Rate loop_rate(125);
   ros::Publisher pub_Pose = n.advertise<std_msgs::String>("ur_driver/URScript", 1);
   ros::ServiceClient srv_client_chess = n.serviceClient<rob_auto_cal::reqChessTransform>("reqChessTransform");
-  ros::Duration(4).sleep();
+  ros::Duration(10).sleep();
 
+  // Read file for X and Z
+
+  if(argc < 2)
+  {
+    cout << "Please specify location of X file as input" << endl;
+    return 0;  
+  }
+
+  ifstream bFile(argv[1]);
+  if (!bFile)
+  {
+    cout << "Cannot open X file: " << argv[1] << endl;
+    return 0;
+  }
+  
+
+  double X[16] = {0};
+  double B[16] = {0};
+
+  for (int i = 0; i < 16; ++i)
+  {
+    bFile >> X[i];
+  }
+  tf2::Transform X_t(tf2::Matrix3x3(X[0],X[1],X[2],X[4],X[5],X[6],X[8],X[9],X[10]),tf2::Vector3(X[3],X[7],X[11]));
+
+
+  ros::spinOnce();
+  forward(current_pos,B);
+  
+  tf2::Transform B_t(tf2::Matrix3x3(B[0],B[1],B[2],B[4],B[5],B[6],B[8],B[9],B[10]),tf2::Vector3(B[3],B[7],B[11]));
+
+  tf2::Transform T_tp_t(tf2::Matrix3x3(1,0,0,0,1,0,0,0,1),tf2::Vector3(0,0,0.1765));
 
   tf2::Quaternion q;
   tf2::Vector3 axis_scaled;
+  tf2::Vector3 direction;
   double robot_conf[6] = {0};
 
-  double T_conf[16] = 
-  {
--0.616037630615, 0.787725263378, 0.002922848773, 0.009017107484, 
-0.787696994546, 0.616041161270, -0.006944629548, -0.633420529597, 
--0.007270978219, -0.001975807058, -0.999982229593, -0.063739354524, 
-0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000 
-  };
+
+  tf2::Transform A_t;
+
+  rob_auto_cal::reqChessTransform srv_chess;
   
-  // double T_tool_end[16] = 
-  // {
-  // 1.000000000000, 0.000000000000, 0.000000000000, -0.000000000000, 
-  // 0.000000000000, 1.000000000000, 0.000000000000, -0.000000000000, 
-  // 0.000000000000, 0.000000000000, 1.000000000000, 0.201500000000, 
-  // 0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000
-  // }
+  if(srv_client_chess.call(srv_chess))
+  { 
+    geometry_msgs::TransformStamped tempTFStamped = srv_chess.response.transformStamped;
+    if (((ros::Time::now()-tempTFStamped.header.stamp).toSec() > 0.5))
+    {
+      cout << "No Chessboard was returned in the current configureations, aborting!" << endl;
+      return 0;
+    }
 
-  // tf2::Transform Tranform_conf; 
-  // tf2::Transform Tranform_tool;
-  // Transform_conf.rotation(T_conf[0])
+    tf2::convert(tempTFStamped.transform, A_t);
+    cout << "Transformation to chessboard recieved!" << endl;
+  }
+  else {cout << "FAILURE! Transformation to chessboard failed!" << endl;}
 
 
-  tf2::Matrix3x3(T_conf[0],T_conf[1],T_conf[2],
-                T_conf[4],T_conf[5],T_conf[6],
-                T_conf[8],T_conf[9],T_conf[10]).getRotation(q);
-    axis_scaled = ((q.getAngle())*(q.getAxis()));
-    robot_conf[0] = T_conf[3];
-    robot_conf[1] = T_conf[7];
-    robot_conf[2] = T_conf[11];
+  tf2::Transform Z_t1;
+  tf2::Transform Z_t2;
+  Z_t1 = B_t*X_t.inverse()*A_t*T_tp_t.inverse()*T_tp_t.inverse(); // one extra tool length is added and later subtracted
+  Z_t2 = Z_t1*T_tp_t;
+
+
+    direction = Z_t1.getOrigin();
+    axis_scaled = ((Z_t1.getRotation().getAngle())*(Z_t1.getRotation().getAxis()));
+    robot_conf[0] = direction.x();
+    robot_conf[1] = direction.y();
+    robot_conf[2] = direction.z();
     robot_conf[3] = axis_scaled.x();
     robot_conf[4] = axis_scaled.y();
     robot_conf[5] = axis_scaled.z();
@@ -261,12 +297,6 @@ int main(int argc, char* argv[])
 
   std::stringstream ss;
 
-  ofstream myfileA;
-  ofstream myfileB;
-
-  myfileA.open("/misc/shome/ex09/Thesis/A_file", std::ios::app); 
-  myfileB.open("/misc/shome/ex09/Thesis/B_file", std::ios::app); 
-
   goal[0] = robot_conf[0];
   goal[1] = robot_conf[1];
   goal[2] = robot_conf[2];
@@ -274,9 +304,7 @@ int main(int argc, char* argv[])
   goal[4] = robot_conf[4];
   goal[5] = robot_conf[5];
 
-  goal[2] += 0.2;
-
-
+ 
 
   ss<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
                             << goal[1] <<", "
@@ -301,71 +329,38 @@ int main(int argc, char* argv[])
   ros::spinOnce();
 
 
-  tf2::Transform first_pos;
-
-  rob_auto_cal::reqChessTransform srv_chess;
   
-  if(srv_client_chess.call(srv_chess))
-  { 
-    geometry_msgs::TransformStamped tempTFStamped = srv_chess.response.transformStamped;
-    tf2::convert(tempTFStamped.transform, first_pos);
-
-
-    cout << "Transformation to chessboard recieved!" << endl;
-  }
-  else {cout << "FAILURE! Transformation to chessboard failed!" << endl;}
   ros::spinOnce();
 
-  double A_T[16] = {0};
+  direction = Z_t2.getOrigin();
+  axis_scaled = ((Z_t2.getRotation().getAngle())*(Z_t2.getRotation().getAxis()));
+  robot_conf[0] = direction.x();
+  robot_conf[1] = direction.y();
+  robot_conf[2] = direction.z();
+  robot_conf[3] = axis_scaled.x();
+  robot_conf[4] = axis_scaled.y();
+  robot_conf[5] = axis_scaled.z();
 
-  for (int i = 0; i < 3; ++i)
+  for (int i = 0; i < 6; ++i)
   {
-    A_T[i] = first_pos.getBasis()[0][i];
-    A_T[i+4] = first_pos.getBasis()[1][i];
-    A_T[i+8] = first_pos.getBasis()[2][i];
-    A_T[3] = first_pos.getOrigin()[0];
-    A_T[7] = first_pos.getOrigin()[1];
-    A_T[11] = first_pos.getOrigin()[2];
+    cout << robot_conf[i] << " ";
   }
-    A_T[12] = 0;
-    A_T[13] = 0;
-    A_T[14] = 0;
-    A_T[15] = 1;
+  cout << endl;
 
-  for (int i = 0; i < 16; ++i)
-  {
-    if(!(i == 0 || i == 4 || i == 8 || i == 12))
-      myfileA << " ";
-
-    myfileA << internal << fixed << setw(13) << setfill(' ') << setprecision(10) << A_T[i];
-    
-    if(i == 3 || i == 7 || i == 11 || i == 15)
-      myfileA << endl;
-  }
- 
-  myfileA << "\n";
-
-  double B_T[16] = {0};
-
-  forward(current_pos,B_T);
-
-    for (int i = 0; i < 16; ++i)
-    {
-      if(!(i == 0 || i == 4 || i == 8 || i == 12))
-        myfileB << " ";
-
-      myfileB << internal << fixed << setw(13) << setfill(' ') << setprecision(10) << B_T[i];
-      
-      if(i == 3 || i == 7 || i == 11 || i == 15)
-        myfileB << endl;
-    }
-  myfileB << "\n";
+  goal[0] = robot_conf[0];
+  goal[1] = robot_conf[1];
+  goal[2] = robot_conf[2];
+  goal[3] = robot_conf[3];
+  goal[4] = robot_conf[4];
+  goal[5] = robot_conf[5];
 
 
+
+  
   ss.clear();
 
 
-  goal[2] += -0.2;
+  //goal[2] += -0.2;
   //goal[4] += 0.1;
   //goal[5] += 0;
   
@@ -395,98 +390,7 @@ int main(int argc, char* argv[])
 
 
 
-  tf2::Transform second_pos;
-
-  if(srv_client_chess.call(srv_chess))
-  { 
-    geometry_msgs::TransformStamped tempTFStamped = srv_chess.response.transformStamped;
-    tf2::convert(tempTFStamped.transform, second_pos);
-    cout << "Transformation to chessboard recieved!" << endl;
-  }
-  else {cout << "FAILURE! Transformation to chessboard failed!" << endl;}
-  ros::spinOnce();
-
-
-    for (int i = 0; i < 3; ++i)
-  {
-    A_T[i] = second_pos.getBasis()[0][i];
-    A_T[i+4] = second_pos.getBasis()[1][i];
-    A_T[i+8] = second_pos.getBasis()[2][i];
-    A_T[3] = second_pos.getOrigin()[0];
-    A_T[7] = second_pos.getOrigin()[1];
-    A_T[11] = second_pos.getOrigin()[2];
-  }
-    A_T[12] = 0;
-    A_T[13] = 0;
-    A_T[14] = 0;
-    A_T[15] = 1;
-
-  for (int i = 0; i < 16; ++i)
-  {
-    if(!(i == 0 || i == 4 || i == 8 || i == 12))
-      myfileA << " ";
-
-    myfileA << internal << fixed << setw(13) << setfill(' ') << setprecision(10) << A_T[i];
-    
-    if(i == 3 || i == 7 || i == 11 || i == 15)
-      myfileA << endl;
-  }
-
-  myfileA << "\n";
-  myfileA.close();
-
-
-
-  forward(current_pos,B_T);
-  for (int i = 0; i < 16; ++i)
-  {
-    if(!(i == 0 || i == 4 || i == 8 || i == 12))
-      myfileB << " ";
-
-    myfileB << internal << fixed << setw(13) << setfill(' ') << setprecision(10) << B_T[i];
-      
-    if(i == 3 || i == 7 || i == 11 || i == 15)
-    myfileB << endl;
-  }
  
-  myfileB << "\n";
-  myfileB.close();
-
-
-  tf2::Transform pos_dif;
-
-
-  pos_dif = (first_pos.inverse()*second_pos);
-
-
-  for (int i = 0; i < 3; ++i)
-  {
-    A_T[i] = pos_dif.getBasis()[0][i];
-    A_T[i+4] = pos_dif.getBasis()[1][i];
-    A_T[i+8] = pos_dif.getBasis()[2][i];
-    A_T[3] = pos_dif.getOrigin()[0];
-    A_T[7] = pos_dif.getOrigin()[1];
-    A_T[11] = pos_dif.getOrigin()[2];
-  }
-    A_T[12] = 0;
-    A_T[13] = 0;
-    A_T[14] = 0;
-    A_T[15] = 1;
-
-  for (int i = 0; i < 16; ++i)
-  {
-    if(!(i == 0 || i == 4 || i == 8 || i == 12))
-      cout << " ";
-
-    cout << internal << fixed << setw(13) << setfill(' ') << setprecision(10) << A_T[i];
-    
-    if(i == 3 || i == 7 || i == 11 || i == 15)
-      cout << endl;
-  }
- 
-  cout << "Total length traveled: " << sqrt(A_T[3]*A_T[3] + A_T[7]*A_T[7] + A_T[11]*A_T[11]) << endl;
-   
-
 
 
 
