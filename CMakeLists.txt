@@ -136,6 +136,7 @@ add_message_files(
    FILES
    reqChessTransform.srv
    reqTransCalc.srv
+   reqSquareTrans.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -306,6 +307,22 @@ add_executable(chessboard_move_ur10 src/nodes/chessboard_move_ur10.cpp)
 target_link_libraries(chessboard_move_ur10 ${catkin_LIBRARIES})
 add_dependencies(chessboard_move_ur10 rob_auto_cal_chessboard_move_ur10_cpp)
 
+
+add_executable(GR2_control src/nodes/GR2_control.cpp)
+target_link_libraries(GR2_control ${catkin_LIBRARIES} ncurses)
+add_dependencies(GR2_control rob_auto_cal_GR2_control_cpp)
+
+
+add_executable(auto_cal_sequence_ur10 src/nodes/auto_cal_sequence_ur10.cpp)
+target_link_libraries(auto_cal_sequence_ur10 ${catkin_LIBRARIES} )
+add_dependencies(auto_cal_sequence_ur10 rob_auto_cal_auto_cal_sequence_ur10_cpp)
+add_dependencies(auto_cal_sequence_ur10 ${catkin_EXPORTED_TARGETS})
+
+
+add_executable(trans_calc_test src/nodes/trans_calc_test.cpp)
+target_link_libraries(trans_calc_test ${catkin_LIBRARIES} )
+add_dependencies(trans_calc_test rob_auto_cal_trans_calc_test_cpp)
+add_dependencies(trans_calc_test ${catkin_EXPORTED_TARGETS})
 
 
 add_executable(trans_calc src/nodes/trans_calc/herwc_solver.cpp src/nodes/trans_calc/herwc_problem3.cpp)

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find ur_modern_driver)/launch/ur10_bringup.launch">
+    <arg name="robot_ip" value="192.38.66.226" />    	    
+  </include>
+   <node name="ur10_sequence" pkg="rob_auto_cal" type="auto_cal_sequence_ur10" output="screen" />
+</launch>

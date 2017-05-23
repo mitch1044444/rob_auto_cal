@@ -1,0 +1,16 @@
+<launch>
+	<param name="camera_placement" value="world" />
+	<param name="config_acquisition_setting" value="automatic" />
+	<param name="config_count" value="87" />
+	<param name="c_radius" value="0.2" />
+	<param name="c_radius_change" value="0" />
+	<param name="c_height" value="0.2" />
+	<param name="c_height_change" value="-0.1" />
+	<param name="focal_point" value="0.2" />
+	<param name="c_rounds" value="6.283185" />
+	<param name="end_rotations" value="3" />	
+	<include file="$(find rob_auto_cal)/launch/ueye_launch.launch" />
+	<node pkg="rob_auto_cal" name="chess_features" type="chess_features" args="0.02425 /camera/image_raw" />	
+	<include file="$(find rob_auto_cal)/launch/auto_cal_sequence_ur10.launch" />
+	<node pkg="rob_auto_cal" name="trans_calc" type="trans_calc" output="screen" />
+</launch>

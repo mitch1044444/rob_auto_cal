@@ -1,0 +1,19 @@
+<launch>
+	<param name="camera_placement" value="hand" />
+	<param name="config_acquisition_setting" value="automatic square" />
+	<param name="config_count" value="29" />
+
+	<param name="sq_x_size" value="0.3" />
+	<param name="sq_y_size" value="0.3" />
+	<param name="sq_z_size" value="0.2" />
+	<param name="sq_z_shift" value="-0.2" />	
+	<param name="focal_point" value="0.2" />
+        <param name="end_rotations" value="3" />	
+	<!-- <param name="random_seed" value="1251" />	-->
+	
+	<include file="$(find rob_auto_cal)/launch/ueye_launch.launch" /> <!--  -->
+	<node pkg="rob_auto_cal" name="chess_features" type="chess_features" args="0.02425 /camera/image_raw" />
+	<include file="$(find rob_auto_cal)/launch/auto_cal_sequence_ur10.launch" />
+	<node pkg="rob_auto_cal" name="trans_calc" type="trans_calc" output="screen"/>
+</launch>
+ 

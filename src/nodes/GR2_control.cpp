@@ -20,6 +20,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <fstream>
 #include <vector>
+#include <ncurses.h>
 
 float Angle_R2D = 180/M_PI;
 
@@ -124,22 +125,7 @@ void TrajectoryMonitorCb(const geometry_msgs::TwistStampedPtr& data)
 	trajectory[5] = data->twist.angular.z;
 }
 
-void ur_movel(std::stringstream ss, float x, float rot, float vel, float accel)
-{
-//     ss<<std::fixed <<std::setprecision(4)<<"movel(p["<<x[0]<<", "<<x[1]<<", "<<x[2]<<", "<<rot[0]<<", "<<rot[1]<<", "<<rot[2]<<"], "<<accel<<", "<<vel<<")\n";
-}
 
-void ur_movej(double j0, double j1, double j2,
-         double j3, double j4, double j5,
-         double accel, double vel)
-{
-    char line[200];
-    sprintf(line, "movej([%.4f, %.4f, %.4f, %.4f, %.4f, %.4f], %.4f, %.4f)\n",
-                          j0,    j1,    j2,    j3, j4, j5, accel, vel);
-    
-    printf("\n%s", line);
-//     sendline(line);
-}
 
 void wait_move(float timeout)
 {
@@ -191,7 +177,7 @@ int main(int argc, char* argv[])
 {
   
 
-  ros::init(argc, argv, "chessboard_move_ur10");
+  ros::init(argc, argv, "GR2_control");
   ros::NodeHandle n;
   ros::Subscriber sub1 = n.subscribe("joint_states", 6, JointMonitorCb);
   ros::Subscriber sub2 = n.subscribe("tool_velocity", 6, TrajectoryMonitorCb);
@@ -199,193 +185,86 @@ int main(int argc, char* argv[])
   ros::Rate loop_rate(125);
   ros::Publisher pub_Pose = n.advertise<std_msgs::String>("ur_driver/URScript", 1);
   ros::ServiceClient srv_client_chess = n.serviceClient<rob_auto_cal::reqChessTransform>("reqChessTransform");
-  ros::Duration(10).sleep();
 
   // Read file for X and Z
 
-  if(argc < 2)
-  {
-    cout << "Please specify location of X file as input" << endl;
-    return 0;  
-  }
+  double wait_time = 0;
 
-  ifstream bFile(argv[1]);
-  if (!bFile)
-  {
-    cout << "Cannot open X file: " << argv[1] << endl;
-    return 0;
-  }
-  
-
-  double X[16] = {0};
-  double B[16] = {0};
-
-  for (int i = 0; i < 16; ++i)
-  {
-    bFile >> X[i];
-  }
-  tf2::Transform X_t(tf2::Matrix3x3(X[0],X[1],X[2],X[4],X[5],X[6],X[8],X[9],X[10]),tf2::Vector3(X[3],X[7],X[11]));
-
-
-  ros::spinOnce();
-  forward(current_pos,B);
-  
-  tf2::Transform B_t(tf2::Matrix3x3(B[0],B[1],B[2],B[4],B[5],B[6],B[8],B[9],B[10]),tf2::Vector3(B[3],B[7],B[11]));
-
-  tf2::Transform T_tp_t(tf2::Matrix3x3(1,0,0,0,1,0,0,0,1),tf2::Vector3(0,0,0.178));
-
-  tf2::Quaternion q;
-  tf2::Vector3 axis_scaled;
-  tf2::Vector3 direction;
-  double robot_conf[6] = {0};
-
-
-  tf2::Transform A_t;
-
-  rob_auto_cal::reqChessTransform srv_chess;
-  
-  if(srv_client_chess.call(srv_chess))
-  { 
-    geometry_msgs::TransformStamped tempTFStamped = srv_chess.response.transformStamped;
-    if (((ros::Time::now()-tempTFStamped.header.stamp).toSec() > 0.5))
-    {
-      cout << "No Chessboard was returned in the current configureations, aborting!" << endl;
-      //return 0;
-    }
-
-    tf2::convert(tempTFStamped.transform, A_t);
-    cout << "Transformation to chessboard recieved!" << endl;
-  }
-  else {cout << "FAILURE! Transformation to chessboard failed!" << endl;}
-
-
-  tf2::Transform Z_t1;
-  tf2::Transform Z_t2;
-  Z_t1 = B_t*X_t.inverse()*A_t*T_tp_t.inverse()*T_tp_t.inverse(); // one extra tool length is added and later subtracted
-  Z_t2 = Z_t1*T_tp_t;
-
-
-    direction = Z_t1.getOrigin();
-    axis_scaled = ((Z_t1.getRotation().getAngle())*(Z_t1.getRotation().getAxis()));
-    robot_conf[0] = direction.x();
-    robot_conf[1] = direction.y();
-    robot_conf[2] = direction.z();
-    robot_conf[3] = axis_scaled.x();
-    robot_conf[4] = axis_scaled.y();
-    robot_conf[5] = axis_scaled.z();
-
-    for (int i = 0; i < 6; ++i)
-    {
-      cout << robot_conf[i] << " ";
-    }
-    cout << endl;
-
-
-  sleep(2);
-
-  ros::spinOnce();
-  
-  printf("Assuming series of arm positions!\n");
-  
-  float accel = 0.1;
-  float vel = 0.2;
-  int wait_time = 5;
-
-  std_msgs::String msg;
-
-  double goal[6] = {-0.202, -0.7152, -0.3, -M_PI, 0, 0};
-
+  ros::Duration(2).sleep();
   std::stringstream ss;
+  bool send_message = false;
+  initscr();
+  curs_set(0);    /* Hide cursor */
+  noecho();   /* Hide user input */ 
+  mvprintw(0, 0,"Press \"c\" to close, \"o\" to open the gripper and \"s\" to change setting");
 
-  goal[0] = robot_conf[0];
-  goal[1] = robot_conf[1];
-  goal[2] = robot_conf[2];
-  goal[3] = robot_conf[3];
-  goal[4] = robot_conf[4];
-  goal[5] = robot_conf[5];
-
-
-
-   ss<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
-                             << goal[1] <<", "
-                             << goal[2] <<", "
-                             << goal[3] <<", "
-                             << goal[4] <<", "
-                             << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
-
-  msg.data = ss.str(); 
-  pub_Pose.publish(msg);
-  ros::spinOnce();
+  mvprintw(2, 0,"Setting 1 active");
+  ss << "set_digital_out(9,False)\n";
+  send_message = true;
 
 
-  wait_move(10);
-  ros::spinOnce();
-  ros::Duration(wait_time).sleep();
-  ros::spinOnce();
+  int gripper_setting = 1;
 
-
-
-  ros::spinOnce();
-
-  direction = Z_t2.getOrigin();
-  axis_scaled = ((Z_t2.getRotation().getAngle())*(Z_t2.getRotation().getAxis()));
-  robot_conf[0] = direction.x();
-  robot_conf[1] = direction.y();
-  robot_conf[2] = direction.z();
-  robot_conf[3] = axis_scaled.x();
-  robot_conf[4] = axis_scaled.y();
-  robot_conf[5] = axis_scaled.z();
-
-  for (int i = 0; i < 6; ++i)
+  while(ros::ok())
   {
-    cout << robot_conf[i] << " ";
+    refresh();
+    timeout(100);
+    int c = getch();
+    if(c == 99)
+    {
+      mvprintw(3, 0,"Gripper Closed");
+      ss << "set_digital_out(8,True)\n";
+      send_message = true;
+      refresh();
+    }
+    if(c == 111)
+    {
+      mvprintw(3, 0,"Gripper Open");
+      ss << "set_digital_out(8,False)\n";
+      send_message = true;
+      refresh();
+    }
+
+    if (c == 115)
+    {
+      if (gripper_setting == 1)
+      {
+        mvprintw(2, 0,"Setting 2 actcive");
+        ss << "set_digital_out(9,True)\n";
+        send_message = true;
+        refresh();
+        gripper_setting = 2;
+      }
+      else
+      {
+        mvprintw(2, 0,"Setting 1 active");
+        ss << "set_digital_out(9,False)\n";
+        send_message = true;
+        refresh();
+        gripper_setting = 1;
+      }
+    }
+
+    
+    if(send_message)
+    {
+    std_msgs::String msg;
+    msg.data = ss.str(); 
+    pub_Pose.publish(msg);
+    ros::Duration(wait_time).sleep();
+    refresh();
+    send_message = false;
+    ss.str(std::string());
+    }
+
+
   }
-  cout << endl;
-
-  goal[0] = robot_conf[0];
-  goal[1] = robot_conf[1];
-  goal[2] = robot_conf[2];
-  goal[3] = robot_conf[3];
-  goal[4] = robot_conf[4];
-  goal[5] = robot_conf[5];
 
 
 
-  
-  ss.clear();
+  endwin();
 
-
-  //goal[2] += -0.2;
-  //goal[4] += 0.1;
-  //goal[5] += 0;
-  
-  ss<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
-                            << goal[1] <<", "
-                            << goal[2] <<", "
-                            << goal[3] <<", "
-                            << goal[4] <<", "
-                            << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
-  
-    // ss<<std::fixed <<std::setprecision(10)<<"movej(["<< goal[0] <<", "
-    //                          << goal[1] <<", "
-    //                          << goal[2] <<", "
-    //                          << goal[3] <<", "
-    //                          << goal[4] <<", "
-    //                          << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
-
-
-
-  msg.data = ss.str(); 
-  pub_Pose.publish(msg);
-  
-  wait_move(10);
-  ros::spinOnce();
-  ros::Duration(wait_time).sleep();
-  ros::spinOnce();
-
-
-
- 
+  ros::Duration(2).sleep();
 
 
 
