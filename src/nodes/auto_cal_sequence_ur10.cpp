@@ -219,9 +219,9 @@ int main(int argc, char* argv[])
   string config_acquisition_setting = "";
   ros::param::get("config_acquisition_setting", config_acquisition_setting);
 
-  if (!(!strcmp(config_acquisition_setting.c_str(), "automatic square") || !strcmp(config_acquisition_setting.c_str(), "automatic cylendar") || !strcmp(config_acquisition_setting.c_str(), "file")))
+  if (!(!strcmp(config_acquisition_setting.c_str(), "automatic square") || !strcmp(config_acquisition_setting.c_str(), "automatic cylinder") || !strcmp(config_acquisition_setting.c_str(), "file")))
   {
-    cout << "\033[38;5;1mERROR! ABORTING!\033[0m config_acquisition_setting argument argument must be defined as ether \"automatic cylendar\", \"automatic square\" or \"file\" depending on choice of robot configuration acquisition method."<< endl;
+    cout << "\033[38;5;1mERROR! ABORTING!\033[0m config_acquisition_setting argument argument must be defined as ether \"automatic cylinder\", \"automatic square\" or \"file\" depending on choice of robot configuration acquisition method."<< endl;
     return 0;
   }
 
@@ -278,13 +278,13 @@ int main(int argc, char* argv[])
   vector< vector<double> > T_configs(n_pos);
   vector< vector<double> > joint_configurations(n_pos);
 
-  if(!strcmp(config_acquisition_setting.c_str(), "automatic cylendar"))
+  if(!strcmp(config_acquisition_setting.c_str(), "automatic cylinder"))
   {
-    cout << "Cylendar mode selected" << endl;
-    double r = 0.1;             // Radius of movement cylendar
+    cout << "Cylinder mode selected" << endl;
+    double r = 0.1;             // Radius of movement cylinder
     double r_p = 0;             // Radius of movement cylender inrease
-    double h = 0;               // Cylendar height based on the initial position of the robot
-    double h_p = -0.3;          // Change in cylendar height based on initial position of the robot
+    double h = 0;               // cylinder height based on the initial position of the robot
+    double h_p = -0.3;          // Change in cylinder height based on initial position of the robot
     double h_f = 2;             // Focal point of the end effector, is useful if camera has narrow field of view
     double rounds = 2*M_PI;          // Number of rounds, is only useful if defined with h_p or r_p
     double rot = 1*M_PI;        // Total rotation of end effector across all robot positions
@@ -443,10 +443,10 @@ int main(int argc, char* argv[])
   else if (!strcmp(config_acquisition_setting.c_str(), "automatic square"))
   {
     cout << "Square mode selected" << "n_pos: " << n_pos << endl;
-    double sq_x = 0.1;             // Radius of movement cylendar
-    double sq_y = 0;             // Radius of movement cylender inrease
-    double sq_z = 0;               // Cylendar height based on the initial position of the robot
-    double sq_z_s = -0.3;          // Change in cylendar height based on initial position of the robot
+    double sq_x = 0.1;             // box x size
+    double sq_y = 0;               // box y size
+    double sq_z = 0;               // box z size
+    double sq_z_s = -0.3;          // box z shift
     double h_f = 2;             // Focal point of the end effector, is useful if camera has narrow field of view
     double rot = 1*M_PI;        // Total rotation of end effector across all robot positions
     int r_s = 1;

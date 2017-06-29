@@ -284,33 +284,6 @@ public:
 			tf_br_.sendTransform(transformStamped_);
 
 
-			// Publish image features in the from of vectors.
-			// rob_auto_cal::vectorVector3 vectorArrayMsg;
-
-			// Mat invcameraMatrix = cameraMatrix.inv();
-
-			// geometry_msgs::Vector3 vect;
-
-			// for (int i = 0; i < corners.size(); ++i)
-			// {
-			// 	double imPoint2d[3] = {cornersd[i].x, cornersd[i].y, 1.0};
-			// 	Mat hom_pt = Mat(3, 1, CV_64F, &imPoint2d);
-
-			// 	hom_pt = invcameraMatrix*hom_pt; //put in world coordinates by removing distortion
-				
-			// 	Point3d direction(hom_pt.at<double>(0),hom_pt.at<double>(1),hom_pt.at<double>(2));
-				
-			// 	//To get a unit vector, direction just needs to be normalized
-			// 	direction *= 1/norm(direction);
-
-			// 	vect.x = direction.x;
-			// 	vect.y = direction.y;
-			// 	vect.z = direction.z;
-				
-			// 	vectorArrayMsg.vectors.push_back(vect);
-			// }
-			
-			// vp_.publish(vectorArrayMsg);
 
 	    }
  
@@ -335,7 +308,7 @@ public:
 int main(int argc, char** argv)
 {
 	cout << "Initiated" << endl;
-	ros::init(argc, argv, "chess_features");
+	ros::init(argc, argv, "chess_trans_finder");
 	if(argc<2)
 	{
 		cout << "\033[1;31mWarning! Input argument needed for chessboard square size! default of 0.02393 set!\033[0m" << endl;
