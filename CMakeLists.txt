@@ -126,10 +126,10 @@ endif(LAPACK)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  vectorVector3.msg
-)
+#add_message_files(
+#  FILES
+#  vectorVector3.msg
+#)
 
 ## Generate services in the 'srv' folder
  add_service_files(
@@ -275,51 +275,67 @@ include_directories( include
 # catkin_add_nosetests(test)
 
 
-add_executable(chess_features src/nodes/chess_features.cpp)
-target_link_libraries(chess_features ${catkin_LIBRARIES})
-add_dependencies(chess_features rob_auto_cal_chess_features_cpp)
-add_dependencies(chess_features ${catkin_EXPORTED_TARGETS})
+add_executable(chess_trans_finder src/nodes/chess_trans_finder.cpp)
+target_link_libraries(chess_trans_finder ${catkin_LIBRARIES})
+add_dependencies(chess_trans_finder rob_auto_cal_chess_trans_finder_cpp)
+#add_dependencies(chess_trans_finder ${catkin_EXPORTED_TARGETS})
+add_dependencies(chess_trans_finder ${PROJECT_NAME}_generate_messages_cpp )
+
 
 #add_executable(save_vects_node src/nodes/save_vects_node.cpp)
 #target_link_libraries(save_vects_node ${catkin_LIBRARIES})
 #add_dependencies(save_vects_node rob_auto_cal_vects_vects_node_cpp)
 #add_dependencies(save_vects_node ${catkin_EXPORTED_TARGETS})
+#add_dependencies( save_vects_node ${PROJECT_NAME}_generate_messages_cpp )
+
 
 #add_executable(save_trans_node src/nodes/save_trans_node.cpp)
 #target_link_libraries(save_trans_node ${catkin_LIBRARIES})
 #add_dependencies(save_trans_node rob_auto_cal_save_trans_node_cpp)
 
 
+
 #add_executable(image_publisher src/nodes/image_publisher.cpp)
 #(image_publisher ${catkin_LIBRARIES})
 #add_dependencies(image_publisher rob_auto_cal_save_data_node_cpp)
 
+
 add_executable(save_joints_node src/nodes/save_joints_node.cpp)
 target_link_libraries(save_joints_node ${catkin_LIBRARIES} ncurses)
 add_dependencies(save_joints_node rob_auto_cal_save_joints_node_cpp)
+#add_dependencies(save_joints_node ${catkin_EXPORTED_TARGETS})
+
 
 add_executable(move_ur10 src/nodes/move_ur10.cpp)
 target_link_libraries(move_ur10 ${catkin_LIBRARIES})
 add_dependencies(move_ur10 rob_auto_cal_move_ur10_cpp)
+add_dependencies(move_ur10 ${PROJECT_NAME}_generate_messages_cpp )
 
 add_executable(chessboard_move_ur10 src/nodes/chessboard_move_ur10.cpp)
 target_link_libraries(chessboard_move_ur10 ${catkin_LIBRARIES})
 add_dependencies(chessboard_move_ur10 rob_auto_cal_chessboard_move_ur10_cpp)
+#add_dependencies(chessboard_move_ur10 ${catkin_EXPORTED_TARGETS})
+add_dependencies(chessboard_move_ur10 ${PROJECT_NAME}_generate_messages_cpp )
 
 add_executable(RG2_control src/nodes/RG2_control.cpp)
 target_link_libraries(RG2_control ${catkin_LIBRARIES} ncurses)
 add_dependencies(RG2_control rob_auto_cal_RG2_control_cpp)
+#add_dependencies(RG2_control ${catkin_EXPORTED_TARGETS})
+add_dependencies(RG2_control ${PROJECT_NAME}_generate_messages_cpp )
 
 
 add_executable(auto_cal_sequence_ur10 src/nodes/auto_cal_sequence_ur10.cpp)
 target_link_libraries(auto_cal_sequence_ur10 ${catkin_LIBRARIES} )
 add_dependencies(auto_cal_sequence_ur10 rob_auto_cal_auto_cal_sequence_ur10_cpp)
-add_dependencies(auto_cal_sequence_ur10 ${catkin_EXPORTED_TARGETS})
+#add_dependencies(auto_cal_sequence_ur10 ${catkin_EXPORTED_TARGETS})
+add_dependencies(auto_cal_sequence_ur10 ${PROJECT_NAME}_generate_messages_cpp )
+
 
 add_executable(chess_pickup_sequence src/nodes/chess_pickup_sequence.cpp)
 target_link_libraries(chess_pickup_sequence ${catkin_LIBRARIES} )
 add_dependencies(chess_pickup_sequence rob_auto_cal_chess_pickup_sequence_cpp)
-add_dependencies(chess_pickup_sequence ${catkin_EXPORTED_TARGETS})
+#add_dependencies(chess_pickup_sequence ${catkin_EXPORTED_TARGETS})
+add_dependencies(chess_pickup_sequence ${PROJECT_NAME}_generate_messages_cpp )
 
 #add_executable(trans_calc_test src/nodes/trans_calc_test.cpp)
 #target_link_libraries(trans_calc_test ${catkin_LIBRARIES} )
@@ -338,7 +354,7 @@ ${PTHREAD}
 ${LAPACK})
 add_dependencies(trans_calc rob_auto_cal_trans_calc_cpp)
 add_dependencies(trans_calc ${catkin_EXPORTED_TARGETS})
-#add_dependencies(trans_calc rob_auto_cal_generate_messages_cpp)
+add_dependencies(trans_calc rob_auto_cal_generate_messages_cpp)
 
 
 
