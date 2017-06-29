@@ -1,7 +1,0 @@
-<launch>
-	<include file="$(find rob_auto_cal)/launch/usb_cam-test.launch" />
-	<node pkg="rob_auto_cal" name="chess_features" type="chess_features" args="0.024" />
-	<include file="$(find rob_auto_cal)/launch/ur10_joint_publish.launch" />
-	<node pkg="rob_auto_cal" name="save_joints_node" type="save_joints_node" output="screen" args="/misc/shome/ex09/Thesis/Jointlog" />
-</launch>
- 

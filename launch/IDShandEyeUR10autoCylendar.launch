@@ -1,6 +1,6 @@
 <launch>
 	<param name="camera_placement" value="hand" />
-	<param name="config_acquisition_setting" value="automatic cylendar" />
+	<param name="config_acquisition_setting" value="automatic cylinder" />
 	<param name="config_count" value="80" />
 	<param name="focal_point" value="0.2" />
 
