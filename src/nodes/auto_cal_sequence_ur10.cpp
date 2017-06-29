@@ -29,6 +29,8 @@ double current_pos[6]={0, 0, 0, 0, 0, 0};
 
 float trajectory[6]={0, 0, 0, 0, 0, 0};
 
+// DH parameters for the UR10
+
 const double d1 =  0.1273;
 const double a2 = -0.612;
 const double a3 = -0.5723;
