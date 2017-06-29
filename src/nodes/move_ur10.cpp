@@ -253,11 +253,12 @@ int main(int argc, char* argv[])
   
   float accel = 0.1;
   float vel = 0.2;
-  int wait_time = 5;
+  int wait_time = 1;
 
   std_msgs::String msg;
 
-  double goal[6] = {-0.202, -0.7152, -0.3, -M_PI, 0, 0};
+  double goal[6] = {3.12165, -0.152307, 1.32192, -1.14524, 1.57082, -2.26646e-05}; //{-0.202, -0.7152, -0.3, -M_PI, 0, 0};
+
 
   std::stringstream ss;
 
@@ -267,30 +268,31 @@ int main(int argc, char* argv[])
   myfileA.open("/misc/shome/ex09/Thesis/A_file", std::ios::app); 
   myfileB.open("/misc/shome/ex09/Thesis/B_file", std::ios::app); 
 
-  goal[0] = robot_conf[0];
-  goal[1] = robot_conf[1];
-  goal[2] = robot_conf[2];
-  goal[3] = robot_conf[3];
-  goal[4] = robot_conf[4];
-  goal[5] = robot_conf[5];
-
-  goal[2] += 0.2;
 
 
 
-  ss<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
-                            << goal[1] <<", "
-                            << goal[2] <<", "
-                            << goal[3] <<", "
-                            << goal[4] <<", "
-                            << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
+  //goal[0] = robot_conf[0];
+  //goal[1] = robot_conf[1];
+  //goal[2] = robot_conf[2];
+  //goal[3] = robot_conf[3];
+  //goal[4] = robot_conf[4];
+  //goal[5] = robot_conf[5];
 
-  // ss<<std::fixed <<std::setprecision(10)<<"movej(["<< goal[0] <<", "
-  //                            << goal[1] <<", "
-  //                            << goal[2] <<", "
-  //                            << goal[3] <<", "
-  //                            << goal[4] <<", "
-  //                            << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
+  goal[3] += 0.05;
+
+  //<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
+  //                          << goal[1] <<", "
+  //                          << goal[2] <<", "
+  //                          << goal[3] <<", "
+  //                          << goal[4] <<", "
+  //                          << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
+
+   ss<<std::fixed <<std::setprecision(10)<<"movej(["<< goal[0] <<", "
+                              << goal[1] <<", "
+                              << goal[2] <<", "
+                              << goal[3] <<", "
+                              << goal[4] <<", "
+                              << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
 
   msg.data = ss.str(); 
   pub_Pose.publish(msg);
@@ -365,23 +367,23 @@ int main(int argc, char* argv[])
   ss.clear();
 
 
-  goal[2] += -0.2;
+  //goal[2] += -0.2;
   //goal[4] += 0.1;
   //goal[5] += 0;
+  goal[3] += -0.1;
+  //ss<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
+  //                          << goal[1] <<", "
+  //                          << goal[2] <<", "
+  //                          << goal[3] <<", "
+  //                        << goal[4] <<", "
+  //                          << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
   
-  ss<<std::fixed <<std::setprecision(10)<<"movel(p["<< goal[0] <<", "
+   ss<<std::fixed <<std::setprecision(10)<<"movej(["<< goal[0] <<", "
                             << goal[1] <<", "
                             << goal[2] <<", "
                             << goal[3] <<", "
                             << goal[4] <<", "
                             << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
-  
-    // ss<<std::fixed <<std::setprecision(10)<<"movej(["<< goal[0] <<", "
-    //                          << goal[1] <<", "
-    //                          << goal[2] <<", "
-    //                          << goal[3] <<", "
-    //                          << goal[4] <<", "
-    //                          << goal[5] <<"], "<<accel<<", "<<vel<<")\n";
 
 
 

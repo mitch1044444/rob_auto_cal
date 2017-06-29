@@ -319,6 +319,11 @@ add_dependencies(auto_cal_sequence_ur10 rob_auto_cal_auto_cal_sequence_ur10_cpp)
 add_dependencies(auto_cal_sequence_ur10 ${catkin_EXPORTED_TARGETS})
 
 
+add_executable(chess_pickup_sequence src/nodes/chess_pickup_sequence.cpp)
+target_link_libraries(chess_pickup_sequence ${catkin_LIBRARIES} )
+add_dependencies(chess_pickup_sequence rob_auto_cal_chess_pickup_sequence_cpp)
+add_dependencies(chess_pickup_sequence ${catkin_EXPORTED_TARGETS})
+
 add_executable(trans_calc_test src/nodes/trans_calc_test.cpp)
 target_link_libraries(trans_calc_test ${catkin_LIBRARIES} )
 add_dependencies(trans_calc_test rob_auto_cal_trans_calc_test_cpp)
