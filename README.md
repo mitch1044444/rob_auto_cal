@@ -1,5 +1,5 @@
 # rob_auto_cal
-Automatically calculate the camera/hand and camera/base transformation using a set of movements and an opencv chessboard
+Automatically calculate the camera/hand and world/base transformation using a set of movements and an opencv chessboard
 
 This ROS package was developed as a part of a Master's thesis on Technical University of Denmark.
 It uses Global polynomial optimizations through semi-definite programming to solve the hand-eye and robot-world transformations simultaneously, using GpoSolver http://cmp.felk.cvut.cz/gposolver/.
