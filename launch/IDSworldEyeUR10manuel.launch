@@ -3,7 +3,7 @@
 	<param name="config_acquisition_setting" value="file" />
 	<param name="config_file_path" value="/misc/shome/ex09/Thesis/joint_configurations" />
 	<include file="$(find rob_auto_cal)/launch/ueye_launch.launch" />
-	<node pkg="rob_auto_cal" name="chess_features" type="chess_features" args="0.02393 /camera/image_raw" />	
+	<node pkg="rob_auto_cal" name="chess_trans_finder" type="chess_trans_finder" args="0.02393 /camera/image_raw" />	
 	<include file="$(find rob_auto_cal)/launch/auto_cal_sequence_ur10.launch" />
 	<node pkg="rob_auto_cal" name="trans_calc" type="trans_calc" output="screen" />
 </launch>
